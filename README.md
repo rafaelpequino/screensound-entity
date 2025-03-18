@@ -1,9 +1,13 @@
 # SCREENSOUND
 
-## Conexão com Banco de Dados
+## Conexão com Banco de Dados ADO.NET
 
 ### 1. Instalar o Pacote Necessário  
-Baixe e instale o pacote `Microsoft.Data.SqlClient` para permitir a conexão com o banco de dados.
+Para conectar ao banco de dados, primeiro instale o pacote **Microsoft.Data.SqlClient**:
+
+```sh
+ dotnet add package Microsoft.Data.SqlClient
+```
 
 ### 2. Obter a Cadeia de Conexão  
 Para encontrar a **Connection String** do banco de dados:
@@ -22,3 +26,49 @@ Encrypt=False;
 Trust Server Certificate=False;
 Application Intent=ReadWrite;
 Multi Subnet Failover=False;
+```
+
+### 3. Criar a Conexão  
+Para estabelecer a conexão com o banco de dados em C#, siga estes passos:
+
+1. Defina uma string privada para armazenar a **Connection String**.
+2. Crie um método público que retorne um `SqlConnection` a partir dessa string.
+
+#### Exemplo de Código:
+```csharp
+using System;
+using System.Data.SqlClient;
+
+public class DatabaseConnection
+{
+    private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ScreenSound;Integrated Security=True;";
+
+    public SqlConnection GetConnection()
+    {
+        return new SqlConnection(connectionString);
+    }
+}
+```
+
+### 4. Abrir a Conexão  
+Para acessar o banco de dados, utilize um `try-catch` para garantir que a conexão seja aberta corretamente:
+
+#### Exemplo de Código:
+```csharp
+public void OpenConnection()
+{
+    try
+    {
+        using (SqlConnection connection = GetConnection())
+        {
+            connection.Open();
+            Console.WriteLine("Conexão aberta com sucesso!");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao conectar: " + ex.Message);
+    }
+}
+```
+
