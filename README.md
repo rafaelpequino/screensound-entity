@@ -153,5 +153,3 @@ Se você já ouviu falar em **DAO** (Data Access Object) e **DAL** (Data Access 
 
 - **DAO** é um objeto do banco de dados que representa um banco aberto.
 - **DAL** é a camada de acesso a dados, promovendo a abstração dos dados e separando a lógica do banco de dados da lógica de negócios. O DAL é independente da fonte de dados, permitindo maior flexibilidade e manutenibilidade no código.
-
-Agora você tem um guia completo para se conectar ao banco de dados, abrir a conexão, recuperar e inserir dados usando ADO.NET no projeto **ScreenSound**.
