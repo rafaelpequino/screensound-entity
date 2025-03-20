@@ -5,7 +5,6 @@ using ScreenSound.Modelos;
 try
 {
     var artistaDAL = new ArtistaDAL();
-    artistaDAL.Adicionar(new Artista("Foo Fighters", "Uma banda de rock alternativo americana formada por Dave Frohl"));
     var listaArtistas = artistaDAL.Listar();
 
     foreach ( var artista in listaArtistas )
