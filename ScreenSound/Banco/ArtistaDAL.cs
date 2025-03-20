@@ -1,34 +1,39 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
 
 namespace ScreenSound.Banco
 {
     internal class ArtistaDAL
     {
+        private readonly ScreenSoundContext context;
+
+        public ArtistaDAL(ScreenSoundContext context)
+        {
+            this.context = context;
+        }
+
         public List<Artista> Listar()
         {
-            using var context = new ScreenSoundContext();
             return context.Artistas.ToList();
         }
 
-        /*
         public void Adicionar(Artista artista)
         {
-            using var connection = new ScreenSoundContext().ObterConexao();
-            connection.Open();
+            context.Artistas.Add(artista);
+            context.SaveChanges();
+        }
 
-            string sql = "INSERT INTO Artistas (Nome, FotoPerfil, Bio) VALUES (@nome, @perfilPadrao, @bio)";
-            SqlCommand command = new SqlCommand(sql, connection);
+        public void Atualizar(Artista artista)
+        {
+            context.Artistas.Update(artista);
+            context.SaveChanges();
+        }
 
-            command.Parameters.AddWithValue("@nome", artista.Nome);
-            command.Parameters.AddWithValue("@perfilPadrao", artista.FotoPerfil);
-            command.Parameters.AddWithValue("@bio", artista.Bio);
-
-            int retorno = command.ExecuteNonQuery();
-            if (retorno > 0)
-            {
-                Console.WriteLine("Artista inserido com sucesso");
-            }
-        }*/
+        public void Deletar(Artista artista)
+        {
+            context.Artistas.Remove(artista);
+            context.SaveChanges();
+        }
     }
 }
