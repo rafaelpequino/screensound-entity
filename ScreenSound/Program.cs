@@ -4,7 +4,15 @@ using ScreenSound.Modelos;
 
 try
 {
-    var artistaDAL = new ArtistaDAL();
+    var context = new ScreenSoundContext();
+    var artistaDAL = new ArtistaDAL(context);
+    var novoArtista = new Artista("Gilberto Gil", "Biografia do grande Gilberto Gil atualizado") { Id = 3002 };
+
+    //artistaDAL.Adicionar(novoArtista);
+    //artistaDAL.Atualizar(novoArtista);
+    artistaDAL.Deletar(novoArtista);
+
+
     var listaArtistas = artistaDAL.Listar();
 
     foreach ( var artista in listaArtistas )
