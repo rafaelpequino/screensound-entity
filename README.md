@@ -1,15 +1,16 @@
 # SCREENSOUND
 
-## Conexão com Banco de Dados ADO.NET
+## Conexão com Banco de Dados com Entity Framework
+O **Entity Framework** é uma ORM (Object-Relational Mapping) que permite mapear um banco de dados relacional para uma aplicação orientada a objetos.
 
 ### 1. Instalar o Pacote Necessário  
-Para conectar ao banco de dados, primeiro instale o pacote **Microsoft.Data.SqlClient**:
+Para conectar ao banco de dados utilizando Entity Framework, primeiro instale o pacote **Microsoft.EntityFrameworkCore.SqlServer**:
 
 ```sh
- dotnet add package Microsoft.Data.SqlClient
+ dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 ```
 
-### 2. Obter a Cadeia de Conexão  
+### 2. Encontrar a Connection String
 Para encontrar a **Connection String** do banco de dados:
 
 1. No **SQL Server Management Studio (SSMS)** ou outra ferramenta de gerenciamento do SQL Server, clique com o botão direito no banco de dados.
@@ -28,128 +29,188 @@ Application Intent=ReadWrite;
 Multi Subnet Failover=False;
 ```
 
-### 3. Criar a Conexão  
-Para estabelecer a conexão com o banco de dados em C#, siga estes passos:
+### 3. Criar o Contexto  
+No **Entity Framework**, a conexão com o banco de dados é gerenciada através de um **Contexto**.
 
-1. Defina uma string privada para armazenar a **Connection String**.
-2. Crie um método público que retorne um `SqlConnection` a partir dessa string.
-
-#### Exemplo de Código:
-```csharp
-using System;
-using System.Data.SqlClient;
-
-public class DatabaseConnection
-{
-    private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ScreenSound;Integrated Security=True;";
-
-    public SqlConnection GetConnection()
-    {
-        return new SqlConnection(connectionString);
-    }
-}
-```
-
-### 4. Abrir a Conexão  
-Para acessar o banco de dados, utilize um `try-catch` para garantir que a conexão seja aberta corretamente:
+#### Passos:
+1. Crie uma classe chamada **ScreenSoundContext.cs**
+2. Herde a classe do **DbContext**
+3. Defina a Connection String dentro do método `OnConfiguring`
 
 #### Exemplo de Código:
 ```csharp
-public void OpenConnection()
+using Microsoft.EntityFrameworkCore;
+
+namespace ScreenSound.Banco
 {
-    try
+    internal class ScreenSoundContext : DbContext
     {
-        using (SqlConnection connection = GetConnection())
+        private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ScreenSound;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            connection.Open();
-            Console.WriteLine("Conexão aberta com sucesso!");
+            optionsBuilder.UseSqlServer(connectionString);
         }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Erro ao conectar: " + ex.Message);
-    }
 }
 ```
 
-### 5. Ler Dados do Banco de Dados  
-Agora, vamos criar um método para listar todos os artistas armazenados no banco de dados.
+### 4. Criar a Classe de Acesso a Dados (DAL)
+Agora, criaremos a **Camada de Acesso a Dados (DAL)**, que será responsável pelas operações no banco de dados.
 
 #### Exemplo de Código:
 ```csharp
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using ScreenSound.Modelos;
 
-public class DatabaseConnection
+namespace ScreenSound.Banco
 {
-    private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ScreenSound;Integrated Security=True;";
-
-    public SqlConnection GetConnection()
+    internal class ArtistaDAL
     {
-        return new SqlConnection(connectionString);
-    }
+        private readonly ScreenSoundContext context;
 
-    public List<Artista> Listar()
-    {
-        var lista = new List<Artista>();
-        using var connection = GetConnection();
-        connection.Open();
-
-        string sql = "SELECT * FROM Artistas";
-        SqlCommand command = new SqlCommand(sql, connection);
-        using SqlDataReader dataReader = command.ExecuteReader();
-
-        while (dataReader.Read())
+        public ArtistaDAL(ScreenSoundContext context)
         {
-            string nomeArtista = Convert.ToString(dataReader["Nome"]);
-            string bioArtista = Convert.ToString(dataReader["Bio"]);
-            int idArtista = Convert.ToInt32(dataReader["Id"]);
-            Artista artista = new(nomeArtista, bioArtista) { Id = idArtista };
-
-            lista.Add(artista);    
+            this.context = context;
         }
 
-        return lista;
+        public List<Artista> Listar()
+        {
+            return context.Artistas.ToList();
+        }
+
+        public void Adicionar(Artista artista)
+        {
+            context.Artistas.Add(artista);
+            context.SaveChanges();
+        }
+
+        public void Atualizar(Artista artista)
+        {
+            context.Artistas.Update(artista);
+            context.SaveChanges();
+        }
+
+        public void Deletar(Artista artista)
+        {
+            context.Artistas.Remove(artista);
+            context.SaveChanges();
+        }
     }
 }
 ```
 
-### 6. Inserir Dados no Banco de Dados
-Agora, vamos adicionar um método para inserir novos artistas no banco de dados.
+### 5. Criar o Modelo de Dados
+Crie um modelo para representar os **Artistas** no banco de dados.
 
 #### Exemplo de Código:
 ```csharp
-public void Adicionar(Artista artista)
+namespace ScreenSound.Modelos
 {
-    using var connection = new Connection().ObterConexao();
-    connection.Open();
-
-    string sql = "INSERT INTO Artistas (Nome, FotoPerfil, Bio) VALUES (@nome, @perfilPadrao, @bio)";
-    SqlCommand command = new SqlCommand(sql, connection);
-
-    command.Parameters.AddWithValue("@nome", artista.Nome);
-    command.Parameters.AddWithValue("@perfilPadrao", artista.FotoPerfil);
-    command.Parameters.AddWithValue("@bio", artista.Bio);
-
-    int retorno = command.ExecuteNonQuery();
-    if (retorno > 0)
+    public class Artista
     {
-        Console.WriteLine("Artista inserido com sucesso");
+        public int Id { get; set; }
+        public string Nome { get; set; }
+        public string FotoPerfil { get; set; }
+        public string Bio { get; set; }
     }
 }
 ```
 
-### ADO.NET e a Camada de Acesso a Dados (DAL)
-O **ADO.NET** é um conjunto de classes que permitem acesso a dados em aplicações .NET. Ele possibilita manipular dados de maneira consistente, separando o acesso aos dados da lógica do sistema.
+### 6. Criar o Banco de Dados e as Tabelas
+Agora, use **Migrations** para criar as tabelas no banco de dados automaticamente.
 
-Os principais objetos utilizados no ADO.NET são:
-- **SqlConnection**: Representa a conexão com o banco de dados.
-- **SqlCommand**: Representa a instrução SQL que será executada no banco de dados.
-- **SqlDataReader**: Fornece um modo de ler as linhas do banco de dados de forma eficiente.
+#### Passo 1: Criar a Primeira Migration
+Execute o seguinte comando no terminal para criar uma **Migration**:
+```sh
+ dotnet ef migrations add CriarBancoDeDados
+```
 
-### DAO vs DAL
-Se você já ouviu falar em **DAO** (Data Access Object) e **DAL** (Data Access Layer), pode se perguntar qual a diferença entre os dois.
+#### Passo 2: Atualizar o Banco de Dados
+Após criar a migration, aplique-a no banco de dados:
+```sh
+ dotnet ef database update
+```
 
-- **DAO** é um objeto do banco de dados que representa um banco aberto.
-- **DAL** é a camada de acesso a dados, promovendo a abstração dos dados e separando a lógica do banco de dados da lógica de negócios. O DAL é independente da fonte de dados, permitindo maior flexibilidade e manutenibilidade no código.
+Esse comando criará a estrutura do banco de dados conforme definido no **ScreenSoundContext** e nos modelos.
+
+### 7. Executar Operações no Banco de Dados
+Agora podemos executar operações básicas no banco de dados.
+
+#### Adicionar um Novo Artista:
+```csharp
+using ScreenSound.Banco;
+using ScreenSound.Modelos;
+
+ScreenSoundContext context = new ScreenSoundContext();
+ArtistaDAL artistaDAL = new ArtistaDAL(context);
+
+var novoArtista = new Artista { Nome = "Artista Exemplo", FotoPerfil = "foto.jpg", Bio = "Biografia do artista" };
+artistaDAL.Adicionar(novoArtista);
+Console.WriteLine("Artista inserido com sucesso!");
+```
+
+#### Listar Todos os Artistas:
+```csharp
+List<Artista> artistas = artistaDAL.Listar();
+foreach (var artista in artistas)
+{
+    Console.WriteLine($"ID: {artista.Id}, Nome: {artista.Nome}, Bio: {artista.Bio}");
+}
+```
+
+#### Atualizar um Artista:
+```csharp
+var artistaParaAtualizar = artistas.FirstOrDefault(a => a.Nome == "Artista Exemplo");
+if (artistaParaAtualizar != null)
+{
+    artistaParaAtualizar.Bio = "Nova biografia atualizada";
+    artistaDAL.Atualizar(artistaParaAtualizar);
+    Console.WriteLine("Artista atualizado com sucesso!");
+}
+```
+
+#### Deletar um Artista:
+```csharp
+var artistaParaDeletar = artistas.FirstOrDefault(a => a.Nome == "Artista Exemplo");
+if (artistaParaDeletar != null)
+{
+    artistaDAL.Deletar(artistaParaDeletar);
+    Console.WriteLine("Artista removido com sucesso!");
+}
+```
+
+### 8. Chamando os métodos dentro do projeto
+Agora podemos chamar os métodos criados.
+
+#### Exemplo de Uso:
+```csharp
+try
+{
+    var context = new ScreenSoundContext();
+    var artistaDAL = new ArtistaDAL(context);
+
+    var novoArtista = new Artista(Nome = "Gilberto Gil", FotoPerfil = "foto.jpg", Bio = "Biografia do grande Gilberto Gil atualizado");
+    artistaDAL.Adicionar(novoArtista);
+
+    var editarArtista = new Artista("Gilberto Gil", "Biografia do grande Gilberto Gil atualizado") { Id = 3002 };
+    artistaDAL.Atualizar(novoArtista);
+    artistaDAL.Deletar(novoArtista);
+
+    var listaArtistas = artistaDAL.Listar();
+
+    foreach (var artista in listaArtistas)
+    {
+        Console.WriteLine($"ID: {artista.Id}, Nome: {artista.Nome}, Bio: {artista.Bio}");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex.Message);
+}
+```
+
+---
+
+## Conclusão
+O **Entity Framework** simplifica a interação com o banco de dados, eliminando a necessidade de escrever SQL manualmente para operações CRUD. Com o **DbContext** e **Migrations**, é possível estruturar o banco de forma dinâmica e eficiente.
