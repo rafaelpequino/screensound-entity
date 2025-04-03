@@ -1,23 +1,25 @@
 # SCREENSOUND
 
-## Conexão com Banco de Dados com Entity Framework
+### Utilização de Entity Framework
+
+### Conexão com Banco de Dados com Entity Framework
 O **Entity Framework** é uma ORM (Object-Relational Mapping) que permite mapear um banco de dados relacional para uma aplicação orientada a objetos.
 
-### 1. Instalar o Pacote Necessário  
+#### 1. Instalar o Pacote Necessário  
 Para conectar ao banco de dados utilizando Entity Framework, primeiro instale o pacote **Microsoft.EntityFrameworkCore.SqlServer**:
 
 ```sh
  dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 ```
 
-### 2. Encontrar a Connection String
+#### 2. Encontrar a Connection String
 Para encontrar a **Connection String** do banco de dados:
 
 1. No **SQL Server Management Studio (SSMS)** ou outra ferramenta de gerenciamento do SQL Server, clique com o botão direito no banco de dados.
 2. Selecione **Propriedades**.
 3. Localize e copie a cadeia de conexão.
 
-#### Exemplo de Connection String:
+###### Exemplo de Connection String:
 ```plaintext
 Data Source=(localdb)\MSSQLLocalDB;
 Initial Catalog=ScreenSound;
@@ -29,15 +31,15 @@ Application Intent=ReadWrite;
 Multi Subnet Failover=False;
 ```
 
-### 3. Criar o Contexto  
+#### 3. Criar o Contexto  
 No **Entity Framework**, a conexão com o banco de dados é gerenciada através de um **Contexto**.
 
-#### Passos:
+###### Passos:
 1. Crie uma classe chamada **ScreenSoundContext.cs**
 2. Herde a classe do **DbContext**
 3. Defina a Connection String dentro do método `OnConfiguring`
 
-#### Exemplo de Código:
+###### Exemplo de Código:
 ```csharp
 using Microsoft.EntityFrameworkCore;
 
@@ -55,10 +57,10 @@ namespace ScreenSound.Banco
 }
 ```
 
-### 4. Criar a Classe de Acesso a Dados (DAL)
+#### 4. Criar a Classe de Acesso a Dados (DAL)
 Agora, criaremos a **Camada de Acesso a Dados (DAL)**, que será responsável pelas operações no banco de dados.
 
-#### Exemplo de Código:
+###### Exemplo de Código:
 ```csharp
 using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
@@ -100,10 +102,10 @@ namespace ScreenSound.Banco
 }
 ```
 
-### 5. Criar o Modelo de Dados
+#### 5. Criar o Modelo de Dados
 Crie um modelo para representar os **Artistas** no banco de dados.
 
-#### Exemplo de Código:
+###### Exemplo de Código:
 ```csharp
 namespace ScreenSound.Modelos
 {
@@ -117,16 +119,16 @@ namespace ScreenSound.Modelos
 }
 ```
 
-### 6. Criar o Banco de Dados e as Tabelas
+#### 6. Criar o Banco de Dados e as Tabelas
 Agora, use **Migrations** para criar as tabelas no banco de dados automaticamente.
 
-#### Passo 1: Criar a Primeira Migration
+###### Passo 1: Criar a Primeira Migration
 Execute o seguinte comando no terminal para criar uma **Migration**:
 ```sh
  dotnet ef migrations add CriarBancoDeDados
 ```
 
-#### Passo 2: Atualizar o Banco de Dados
+###### Passo 2: Atualizar o Banco de Dados
 Após criar a migration, aplique-a no banco de dados:
 ```sh
  dotnet ef database update
@@ -134,10 +136,10 @@ Após criar a migration, aplique-a no banco de dados:
 
 Esse comando criará a estrutura do banco de dados conforme definido no **ScreenSoundContext** e nos modelos.
 
-### 7. Executar Operações no Banco de Dados
+#### 7. Executar Operações no Banco de Dados
 Agora podemos executar operações básicas no banco de dados.
 
-#### Adicionar um Novo Artista:
+###### Adicionar um Novo Artista:
 ```csharp
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
@@ -150,7 +152,7 @@ artistaDAL.Adicionar(novoArtista);
 Console.WriteLine("Artista inserido com sucesso!");
 ```
 
-#### Listar Todos os Artistas:
+###### Listar Todos os Artistas:
 ```csharp
 List<Artista> artistas = artistaDAL.Listar();
 foreach (var artista in artistas)
@@ -159,7 +161,7 @@ foreach (var artista in artistas)
 }
 ```
 
-#### Atualizar um Artista:
+###### Atualizar um Artista:
 ```csharp
 var artistaParaAtualizar = artistas.FirstOrDefault(a => a.Nome == "Artista Exemplo");
 if (artistaParaAtualizar != null)
@@ -170,7 +172,7 @@ if (artistaParaAtualizar != null)
 }
 ```
 
-#### Deletar um Artista:
+###### Deletar um Artista:
 ```csharp
 var artistaParaDeletar = artistas.FirstOrDefault(a => a.Nome == "Artista Exemplo");
 if (artistaParaDeletar != null)
@@ -180,10 +182,10 @@ if (artistaParaDeletar != null)
 }
 ```
 
-### 8. Chamando os métodos dentro do projeto
+#### 8. Chamando os métodos dentro do projeto
 Agora podemos chamar os métodos criados.
 
-#### Exemplo de Uso:
+###### Exemplo de Uso:
 ```csharp
 try
 {
@@ -212,5 +214,5 @@ catch (Exception ex)
 
 ---
 
-## Conclusão
+### Conclusão
 O **Entity Framework** simplifica a interação com o banco de dados, eliminando a necessidade de escrever SQL manualmente para operações CRUD. Com o **DbContext** e **Migrations**, é possível estruturar o banco de forma dinâmica e eficiente.
