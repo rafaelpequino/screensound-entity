@@ -1,6 +1,6 @@
 # SCREENSOUND
 
-### Utilização de Entity Framework
+## Utilização de Entity Framework
 
 ### Conexão com Banco de Dados com Entity Framework
 O **Entity Framework** é uma ORM (Object-Relational Mapping) que permite mapear um banco de dados relacional para uma aplicação orientada a objetos.
