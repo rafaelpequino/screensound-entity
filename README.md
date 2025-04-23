@@ -9,7 +9,7 @@ O **Entity Framework** é uma ORM (Object-Relational Mapping) que permite mapear
 Para conectar ao banco de dados utilizando Entity Framework, primeiro instale o pacote **Microsoft.EntityFrameworkCore.SqlServer**:
 
 ```sh
- dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 ```
 
 #### 2. Encontrar a Connection String
@@ -33,11 +33,6 @@ Multi Subnet Failover=False;
 
 #### 3. Criar o Contexto  
 No **Entity Framework**, a conexão com o banco de dados é gerenciada através de um **Contexto**.
-
-###### Passos:
-1. Crie uma classe chamada **ScreenSoundContext.cs**
-2. Herde a classe do **DbContext**
-3. Defina a Connection String dentro do método `OnConfiguring`
 
 ###### Exemplo de Código:
 ```csharp
@@ -122,23 +117,12 @@ namespace ScreenSound.Modelos
 #### 6. Criar o Banco de Dados e as Tabelas
 Agora, use **Migrations** para criar as tabelas no banco de dados automaticamente.
 
-###### Passo 1: Criar a Primeira Migration
-Execute o seguinte comando no terminal para criar uma **Migration**:
 ```sh
- dotnet ef migrations add CriarBancoDeDados
+dotnet ef migrations add CriarBancoDeDados
+dotnet ef database update
 ```
-
-###### Passo 2: Atualizar o Banco de Dados
-Após criar a migration, aplique-a no banco de dados:
-```sh
- dotnet ef database update
-```
-
-Esse comando criará a estrutura do banco de dados conforme definido no **ScreenSoundContext** e nos modelos.
 
 #### 7. Executar Operações no Banco de Dados
-Agora podemos executar operações básicas no banco de dados.
-
 ###### Adicionar um Novo Artista:
 ```csharp
 using ScreenSound.Banco;
@@ -183,20 +167,17 @@ if (artistaParaDeletar != null)
 ```
 
 #### 8. Chamando os métodos dentro do projeto
-Agora podemos chamar os métodos criados.
-
-###### Exemplo de Uso:
 ```csharp
 try
 {
     var context = new ScreenSoundContext();
     var artistaDAL = new ArtistaDAL(context);
 
-    var novoArtista = new Artista(Nome = "Gilberto Gil", FotoPerfil = "foto.jpg", Bio = "Biografia do grande Gilberto Gil atualizado");
+    var novoArtista = new Artista { Nome = "Gilberto Gil", FotoPerfil = "foto.jpg", Bio = "Biografia do grande Gilberto Gil" };
     artistaDAL.Adicionar(novoArtista);
 
-    var editarArtista = new Artista("Gilberto Gil", "Biografia do grande Gilberto Gil atualizado") { Id = 3002 };
-    artistaDAL.Atualizar(novoArtista);
+    var editarArtista = new Artista { Id = 3002, Nome = "Gilberto Gil", Bio = "Biografia atualizada" };
+    artistaDAL.Atualizar(editarArtista);
     artistaDAL.Deletar(novoArtista);
 
     var listaArtistas = artistaDAL.Listar();
@@ -214,5 +195,59 @@ catch (Exception ex)
 
 ---
 
+### Utilização de Generics na Camada DAL
+
+Para reutilizar a lógica da DAL para diferentes entidades do banco de dados, podemos usar **Generics**. Assim, com uma única classe, é possível realizar operações CRUD em qualquer entidade.
+
+###### Exemplo de DAL Genérica:
+```csharp
+using ScreenSound.Modelos;
+
+namespace ScreenSound.Banco
+{
+    internal class DAL<T> where T : class
+    {
+        protected readonly ScreenSoundContext context;
+
+        protected DAL(ScreenSoundContext context)
+        {
+            this.context = context;
+        }
+
+        public List<T> Listar()
+        {
+            return context.Set<T>().ToList();
+        }
+
+        public void Adicionar(T objeto)
+        {
+            context.Set<T>().Add(objeto);
+            context.SaveChanges();
+        }
+
+        public void Atualizar(T objeto)
+        {
+            context.Set<T>().Update(objeto);
+            context.SaveChanges();
+        }
+
+        public void Deletar(T objeto)
+        {
+            context.Set<T>().Remove(objeto);
+            context.SaveChanges();
+        }
+
+        public T? RecuperarPor(Func<T, bool> condicao)
+        {
+            return context.Set<T>().FirstOrDefault(condicao);
+        }
+    }
+}
+```
+
+Com essa abordagem, basta criar uma nova instância de `DAL<T>` com a entidade desejada (por exemplo: `DAL<Artista>`) e todas as operações estarão disponíveis.
+
+---
+
 ### Conclusão
-O **Entity Framework** simplifica a interação com o banco de dados, eliminando a necessidade de escrever SQL manualmente para operações CRUD. Com o **DbContext** e **Migrations**, é possível estruturar o banco de forma dinâmica e eficiente.
+O **Entity Framework** simplifica a interação com o banco de dados, eliminando a necessidade de escrever SQL manualmente para operações CRUD. Com o **DbContext**, **Migrations** e o uso de **Generics**, é possível estruturar e acessar o banco de forma dinâmica, segura e reutilizável.
