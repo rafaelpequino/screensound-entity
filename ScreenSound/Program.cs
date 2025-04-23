@@ -1,31 +1,5 @@
-﻿using ScreenSound.Banco;
-using ScreenSound.Menus;
+﻿using ScreenSound.Menus;
 using ScreenSound.Modelos;
-
-try
-{
-    var context = new ScreenSoundContext();
-    var artistaDAL = new ArtistaDAL(context);
-    var novoArtista = new Artista("Gilberto Gil", "Biografia do grande Gilberto Gil atualizado") { Id = 3002 };
-
-    //artistaDAL.Adicionar(novoArtista);
-    //artistaDAL.Atualizar(novoArtista);
-    artistaDAL.Deletar(novoArtista);
-
-
-    var listaArtistas = artistaDAL.Listar();
-
-    foreach ( var artista in listaArtistas )
-    {
-        Console.WriteLine( artista );
-    }
-} 
-catch (Exception ex)
-{
-    Console.WriteLine(ex.Message);
-}
-
-return;
 
 Artista ira = new Artista("Ira!", "Banda Ira!");
 Artista beatles = new("The Beatles", "Banda The Beatles");
