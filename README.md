@@ -139,24 +139,38 @@ namespace ScreenSound.Modelos
 
 Agora, use **Migrations** para criar as tabelas no banco de dados automaticamente.
 
-**Passo 1: Criar a Primeira Migration**
+**Passo 1: Criar a Primeira Migration via Terminal (CLI)**
 
 Execute o seguinte comando no terminal para criar uma **Migration**:
 ```sh
 dotnet ef migrations add CriarBancoDeDados
 ```
 
-**Passo 2: Atualizar o Banco de Dados**
+**Passo 2: Atualizar o Banco de Dados via Terminal (CLI)**
 
 Após criar a migration, aplique-a no banco de dados:
 ```sh
 dotnet ef database update
 ```
 
-> **Importante:**  
-> Certifique-se que os pacotes `Microsoft.EntityFrameworkCore.Design` e `Microsoft.EntityFrameworkCore.Tools` estão instalados para utilizar os comandos acima.
+---
 
-Esses comandos criarão a estrutura do banco de dados conforme definido no **ScreenSoundContext** e nos modelos.
+### Utilizando o Console do Gerenciador de Pacotes do NuGet
+
+Se preferir, você também pode utilizar o **Console do Gerenciador de Pacotes do NuGet** no Visual Studio:
+
+- Para adicionar uma nova Migration:
+```sh
+Add-Migration NomeDaMigration
+```
+
+- Para aplicar (atualizar) o banco de dados com a Migration:
+```sh
+Update-Database NomeDaMigration
+```
+
+> **Observação:**  
+> No Console do Gerenciador de Pacotes, não é necessário usar `dotnet ef`. Basta usar `Add-Migration` e `Update-Database` diretamente.
 
 ---
 
@@ -246,4 +260,4 @@ catch (Exception ex)
 ### Conclusão
 
 O **Entity Framework** simplifica a interação com o banco de dados, eliminando a necessidade de escrever SQL manualmente para operações CRUD.  
-Com o **DbContext** e **Migrations**, é possível estruturar o banco de forma dinâmica e eficiente.
+Com o **DbContext**, **Migrations** e os recursos do **Console do Gerenciador de Pacotes**, é possível estruturar e evoluir o banco de dados de forma dinâmica e eficiente.
