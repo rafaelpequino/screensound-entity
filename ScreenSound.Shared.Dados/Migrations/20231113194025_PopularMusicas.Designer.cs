@@ -12,15 +12,15 @@ using ScreenSound.Banco;
 namespace ScreenSound.Migrations
 {
     [DbContext(typeof(ScreenSoundContext))]
-    [Migration("20231201064222_RelacionarArtistaMusica")]
-    partial class RelacionarArtistaMusica
+    [Migration("20231113194025_PopularMusicas")]
+    partial class PopularMusicas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.14")
+                .HasAnnotation("ProductVersion", "7.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -61,32 +61,13 @@ namespace ScreenSound.Migrations
                     b.Property<int?>("AnoLancamento")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ArtistaId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ArtistaId");
-
                     b.ToTable("Musicas");
-                });
-
-            modelBuilder.Entity("ScreenSound.Modelos.Musica", b =>
-                {
-                    b.HasOne("ScreenSound.Modelos.Artista", "Artista")
-                        .WithMany("Musicas")
-                        .HasForeignKey("ArtistaId");
-
-                    b.Navigation("Artista");
-                });
-
-            modelBuilder.Entity("ScreenSound.Modelos.Artista", b =>
-                {
-                    b.Navigation("Musicas");
                 });
 #pragma warning restore 612, 618
         }
