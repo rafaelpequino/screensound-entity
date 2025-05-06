@@ -1,11 +1,4 @@
-﻿using ScreenSound.Modelos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ScreenSound.Banco;
+﻿namespace ScreenSound.Banco;
 public class DAL<T> where T : class
 {
     private readonly ScreenSoundContext context;

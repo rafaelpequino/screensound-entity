@@ -1,16 +1,17 @@
-using ScreenSound.Banco;
-using ScreenSound.Modelos;
+using ScreenSound.API.Endpoints;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();  
+
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 var app = builder.Build();
 
-app.MapGet("/", () =>
-{
-    var dal = new DAL<Artista>(new ScreenSoundContext());
-    return dal.Listar();
-});
+app.AddEndPointsArtistas();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.Run();
